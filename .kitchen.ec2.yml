@@ -1,0 +1,49 @@
+---
+driver:
+  name: ec2
+  require_chef_omnibus: 13.4.19
+  aws_ssh_key_id: <%= ENV['AWS_SSH_KEY_ID'] %>
+  security_group_ids: <%= ENV['AWS_SECURITY_GROUPS'] %>
+  region: <%= ENV['AWS_REGION'] || 'us-east-1' %>
+  availability_zone: <%= ENV['AWS_AVAILABILITY_ZONE'] || 'us-east-1a' %>
+  subnet_id: <%= ENV['AWS_SUBNET'] %>
+  instance_type: 't2.medium'
+  tags:
+    Name: scalr-agent-chef
+    Owner: '<%= ENV['AWS_OWNER_TAG'] %>'
+
+transport:
+  ssh_key: '<%= ENV['AWS_SSH_KEY_PATH'] %>'
+  connection_timeout: 5
+  connection_retries: 20
+
+provisioner:
+  name: chef_zero
+  # You may wish to disable always updating cookbooks in CI or other testing environments.
+  # For example:
+  #   always_update_cookbooks: <%= !ENV['CI'] %>
+  always_update_cookbooks: true
+
+verifier:
+  name: inspec
+
+platforms:
+  - name: ubuntu-16.04
+    driver_config:
+      image_id: <%= ENV['AWS_UBUNTU16_AMI'] %>
+    transport:
+      username: ubuntu
+  - name: AWSLinux
+    driver_config:
+      image_id: <%= ENV['AWS_Linux_AMI'] %>
+    transport:
+      username: ec2-user
+
+suites:
+  - name: default
+    run_list:
+      - recipe[scalr-agent-chef::default]
+    verifier:
+      inspec_tests:
+        - test/smoke/default
+    attributes:
