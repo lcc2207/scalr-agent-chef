@@ -9,7 +9,7 @@ end
 # setup repos
 include_recipe 'scalr-agent-chef::ubuntu' if ubuntu?
 include_recipe 'scalr-agent-chef::rhel' if rhel? || amazon_linux?
-include_recipe 'scalr-agent-chef::windows' if windows?
+# include_recipe 'scalr-agent-chef::windows' if windows?
 
 # install agent
 include_recipe 'scalr-agent-chef::scalarizr'
