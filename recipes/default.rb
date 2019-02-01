@@ -11,6 +11,12 @@ apt_repository "scalr-#{node['scalr-agent-chef']['repositoryid']}" do
   only_if { ubuntu? }
 end
 
+execute 'add ubuntu gpg key' do
+  command 'wget -qO- http://repo.scalr.net/apt-key.gpg | apt-key add -'
+  only_if { ubuntu? }
+  not_if { 'apt-key list | grep 83E3E037 '}
+end
+
 yum_repository "scalr-#{node['scalr-agent-chef']['repositoryid']}" do
   description 'Scalr repo'
   baseurl "http://#{node['scalr-agent-chef']['baseurl']}/rpm/#{node['scalr-agent-chef']['repositoryid']}/rhel/#{node['scalr-agent-chef']['repo_ver']}/x86_64/"
